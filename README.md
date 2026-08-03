@@ -24,6 +24,7 @@ Aplikasi ini dibalut dengan antarmuka UI/UX bernuansa *Glassmorphism* dan *Dark 
 - **Vanilla JavaScript (ES6+)**
 - **[FFmpeg WASM](https://ffmpegwasm.netlify.app/)** (v0.12.x) - *Core Engine*
 - **[JSZip](https://stuk.github.io/jszip/)** - *Batch zipping library*
+- **[coi-serviceworker](https://github.com/gzuidhof/coi-serviceworker)** - *Bypass HTTP Headers untuk GitHub Pages*
 
 ---
 
@@ -32,7 +33,8 @@ Aplikasi ini dibalut dengan antarmuka UI/UX bernuansa *Glassmorphism* dan *Dark 
 ```text
 auto-video-cutter/
 │
-├── index.html       # Struktur utama & pemuatan library via CDN
-├── style.css        # Styling UI, Animasi, dan Glassmorphism (Dark Theme)
-├── script.js        # Logika aplikasi, Manajemen State, & Eksekusi FFmpeg
-└── README.md        # Dokumentasi Project
+├── index.html                # Struktur utama & pemuatan library via CDN
+├── style.css                 # Styling UI, Animasi, dan Glassmorphism (Dark Theme)
+├── script.js                 # Logika aplikasi, Manajemen State, & Eksekusi FFmpeg
+├── coi-serviceworker.min.js  # Script wajib untuk hosting di GitHub Pages
+└── README.md                 # Dokumentasi Project
