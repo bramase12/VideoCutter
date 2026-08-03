@@ -78,19 +78,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }[tag]))
     };
 
-    // --- 4. FFMPEG INITIALIZATION ---
-
-    // 🚀 CUSTOM FETCHER: Mengubah URL CDN langsung menjadi file Lokal di RAM
-    async function loadBlobURL(url, mimeType) {
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`Gagal mendownload: ${url} (Status: ${response.status})`);
-        }
-        const buffer = await response.arrayBuffer();
-        const blob = new Blob([buffer], { type: mimeType });
-        return URL.createObjectURL(blob);
-    }
-
+   // --- 4. FFMPEG INITIALIZATION ---
     async function initFFmpeg() {
         try {
             if (!window.crossOriginIsolated) {
@@ -108,18 +96,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             });
 
-            DOM.ffmpegStatus.textContent = 'Mendownload Core & Worker...';
+            DOM.ffmpegStatus.textContent = 'Memuat Core Lokal...';
             DOM.ffmpegStatus.className = 'status-badge loading';
             
-            // 🔥 KITA GUNAKAN VERSI 0.12.7 YANG 100% PASTI COCOK & STABIL
-            const coreURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.js';
-            const wasmURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.wasm';
-            const workerURL = 'https://unpkg.com/@ffmpeg/ffmpeg@0.12.7/dist/umd/814.ffmpeg.js';
-
+            // 🔥 Cukup panggil file lokal. Worker (814.ffmpeg.js) akan otomatis terpanggil!
             await State.ffmpeg.load({
-                coreURL: await loadBlobURL(coreURL, 'text/javascript'),
-                wasmURL: await loadBlobURL(wasmURL, 'application/wasm'),
-                classWorkerURL: await loadBlobURL(workerURL, 'text/javascript')
+                coreURL: 'ffmpeg/ffmpeg-core.js',
+                wasmURL: 'ffmpeg/ffmpeg-core.wasm'
             });
 
             State.isFFmpegLoaded = true;
@@ -134,7 +117,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             Utils.showToast('Gagal memuat engine FFmpeg. Cek Console.', 'error');
         }
     }
-
+    
     // --- 5. EVENT LISTENERS (UI INTERACTIONS) ---
     const setupEventListeners = () => {
         // Drag & Drop
