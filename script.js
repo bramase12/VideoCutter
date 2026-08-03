@@ -80,14 +80,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- 4. FFMPEG INITIALIZATION ---
     async function initFFmpeg() {
-       try {
+      try {
             // Cek apakah bypass header berhasil
             if (!window.crossOriginIsolated) {
                 console.warn("Peringatan: Browser tidak crossOriginIsolated. FFmpeg mungkin gagal dimuat jika SharedArrayBuffer tidak tersedia.");
             }
 
-            const { FFmpeg } = window.FFmpeg;
-            const { toBlobURL } = window.FFmpegUtil; // Gunakan toBlobURL untuk mengatasi masalah CORS di Web Worker
+            // PERBAIKAN DI SINI: Objek global untuk v0.12.x adalah FFmpegWASM
+            const { FFmpeg } = window.FFmpegWASM; 
+            const { toBlobURL } = window.FFmpegUtil; 
             
             State.ffmpeg = new FFmpeg();
             
