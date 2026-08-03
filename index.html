@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Video Cutter Pro | FFmpeg WASM</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Library Eksternal via CDN -->
+    <!-- Menggunakan FFmpeg WASM v0.12 -->
+    <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.7/dist/umd/ffmpeg.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.1/dist/umd/index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</head>
+<body class="dark-theme">
+    <div class="app-container">
+        
+        <!-- Sidebar & Settings -->
+        <aside class="sidebar glass-panel">
+            <h2>⚙️ Pengaturan</h2>
+            
+            <div class="form-group">
+                <label for="outputPrefix">Prefix Nama Output</label>
+                <input type="text" id="outputPrefix" value="Video_" placeholder="Contoh: Tutorial_">
+            </div>
+
+            <div class="form-group">
+                <label for="videoCodec">Mode Proses</label>
+                <select id="videoCodec">
+                    <option value="copy">Fast Mode (Lossless, -c copy)</option>
+                    <option value="libx264">Quality Mode (Re-encode, libx264)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="outputFormat">Format Output</label>
+                <select id="outputFormat">
+                    <option value="mp4">MP4</option>
+                    <option value="mkv">MKV</option>
+                    <option value="webm">WEBM</option>
+                </select>
+            </div>
+
+            <hr>
+            
+            <div class="system-status">
+                <h3>Status FFmpeg</h3>
+                <div id="ffmpegStatus" class="status-badge loading">Memuat Core...</div>
+            </div>
+            
+            <div class="memory-stats">
+                <small>Penggunaan Memori dikelola otomatis oleh Garbage Collector (URL.revokeObjectURL & FS.unlink).</small>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header>
+                <h1>Auto Video Cutter <span>Pro</span></h1>
+                <p>Potong video secara lokal di browser tanpa server menggunakan FFmpeg WASM.</p>
+            </header>
+
+            <div class="grid-layout">
+                <!-- Kolom Kiri: Upload & Preview -->
+                <section class="left-panel">
+                    <div id="dropZone" class="drop-zone glass-panel" aria-label="Area Upload Video" role="button" tabindex="0">
+                        <div class="drop-content">
+                            <span class="icon">📁</span>
+                            <p>Drag & Drop video di sini atau <strong>Klik untuk Upload</strong></p>
+                            <small>Support: MP4, MOV, AVI, MKV, WEBM</small>
+                        </div>
+                        <input type="file" id="videoInput" accept="video/mp4,video/x-m4v,video/*" hidden>
+                    </div>
+
+                    <div class="video-preview glass-panel hidden" id="videoPreviewContainer">
+                        <video id="videoPlayer" controls></video>
+                        <div class="video-info">
+                            <span id="videoName">Nama_File.mp4</span>
+                            <span id="videoDuration">00:00:00</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Kolom Kanan: Cut List & Processing -->
+                <section class="right-panel glass-panel">
+                    <div class="panel-header">
+                        <h3>Daftar Potongan (Cut List)</h3>
+                        <div class="actions">
+                            <button id="btnImportText" class="btn btn-secondary btn-sm">Import TXT</button>
+                            <input type="file" id="importInput" accept=".txt,.csv,.json" hidden>
+                            <button id="btnExportText" class="btn btn-secondary btn-sm">Export TXT</button>
+                        </div>
+                    </div>
+                    
+                    <div class="input-area">
+                        <textarea id="cutListInput" placeholder="Format: HH:MM:SS - HH:MM:SS&#10;Contoh:&#10;00:00:00 - 00:00:15&#10;00:20 - 00:45" rows="6"></textarea>
+                    </div>
+                    
+                    <button id="btnStartProcess" class="btn btn-primary btn-large" disabled>
+                        <span class="btn-text">MULAI PROSES</span>
+                        <div class="spinner hidden"></div>
+                    </button>
+
+                    <div id="progressContainer" class="progress-container hidden">
+                        <div class="progress-header">
+                            <span id="progressText">Memproses: 0 / 0</span>
+                            <span id="progressPercent">0%</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div id="progressBar" class="progress-bar-fill"></div>
+                        </div>
+                        <small id="progressDetail" class="progress-detail">Menyiapkan...</small>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Queue & Results -->
+            <section class="results-section glass-panel">
+                <div class="panel-header">
+                    <h3>Hasil Potongan (Queue & Completed)</h3>
+                    <button id="btnDownloadZip" class="btn btn-success hidden">Download Semua (ZIP)</button>
+                </div>
+                <div id="resultList" class="result-list">
+                    <!-- Item hasil akan di-generate di sini -->
+                    <div class="empty-state">Belum ada video yang diproses.</div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Toast Notification System -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
