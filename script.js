@@ -99,10 +99,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             DOM.ffmpegStatus.textContent = 'Memuat Core Lokal...';
             DOM.ffmpegStatus.className = 'status-badge loading';
             
-            // Call load with local paths to avoid CORS issues
+            // 🔥 PATH LOKAL ABSOLUT (Memulai dengan "/")
             await State.ffmpeg.load({
-                coreURL: 'ffmpeg/ffmpeg-core.js',
-                wasmURL: 'ffmpeg/ffmpeg-core.wasm'
+                coreURL: '/ffmpeg/ffmpeg-core.js',
+                wasmURL: '/ffmpeg/ffmpeg-core.wasm',
+                classWorkerURL: '/ffmpeg/814.ffmpeg.js'
             });
 
             State.isFFmpegLoaded = true;
