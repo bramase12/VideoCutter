@@ -22,6 +22,7 @@ Aplikasi ini dibalut dengan antarmuka UI/UX bernuansa *Glassmorphism* dan *Dark 
 
 - **HTML5 & CSS3** (Pendekatan Native & Semantik)
 - **Vanilla JavaScript (ES6+)**
+- **Google Gemini AI**
 - **[FFmpeg WASM](https://ffmpegwasm.netlify.app/)** (v0.12.x) - *Core Engine*
 - **[JSZip](https://stuk.github.io/jszip/)** - *Batch zipping library*
 - **[coi-serviceworker](https://github.com/gzuidhof/coi-serviceworker)** - *Bypass HTTP Headers untuk GitHub Pages*
