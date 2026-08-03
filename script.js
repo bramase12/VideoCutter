@@ -80,10 +80,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- 4. FFMPEG INITIALIZATION ---
     async function initFFmpeg() {
-      try {
-            // Cek apakah bypass header berhasil di Vercel
+     try {
             if (!window.crossOriginIsolated) {
-                console.warn("Peringatan: Browser tidak crossOriginIsolated. Pastikan file vercel.json sudah benar.");
+                console.warn("Peringatan: Browser tidak crossOriginIsolated. Pastikan vercel.json sudah benar.");
             }
 
             const { FFmpeg } = window.FFmpegWASM; 
@@ -91,7 +90,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             State.ffmpeg = new FFmpeg();
             
-            // Listener untuk progress bar
             State.ffmpeg.on('progress', ({ progress }) => {
                 if (State.isProcessing && progress >= 0 && progress <= 1) {
                     const percent = Math.round(progress * 100);
@@ -103,11 +101,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             DOM.ffmpegStatus.textContent = 'Mendownload Core & Worker...';
             DOM.ffmpegStatus.className = 'status-badge loading';
 
-            // URL dari CDN
+            // Base URL diperbarui ke 0.12.10
             const coreBaseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
-            const ffmpegBaseURL = 'https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.7/dist/umd';
+            const ffmpegBaseURL = 'https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd';
             
-            // Bypass CORS Web Worker dengan toBlobURL
+            // Sekarang classWorkerURL pasti akan dieksekusi dengan benar
             await State.ffmpeg.load({
                 coreURL: await toBlobURL(`${coreBaseURL}/ffmpeg-core.js`, 'text/javascript'),
                 wasmURL: await toBlobURL(`${coreBaseURL}/ffmpeg-core.wasm`, 'application/wasm'),
