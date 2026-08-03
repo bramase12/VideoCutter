@@ -79,20 +79,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     // --- 4. FFMPEG INITIALIZATION ---
-    // --- 4. FFMPEG INITIALIZATION ---
-
-    // 🚀 CUSTOM FETCHER: Pengganti FFmpegUtil yang 100% Native & Anti-Error
-    async function loadBlobURL(url, mimeType) {
-        const response = await fetch(url);
-        const buffer = await response.arrayBuffer();
-        const blob = new Blob([buffer], { type: mimeType });
-        return URL.createObjectURL(blob);
-    }
 
     async function initFFmpeg() {
         try {
             if (!window.crossOriginIsolated) {
-                console.warn("Peringatan: Browser tidak crossOriginIsolated. Pastikan konfigurasi Vercel sudah benar.");
+                console.warn("Peringatan: Browser tidak crossOriginIsolated. Pastikan vercel.json sudah benar.");
             }
 
             const { FFmpeg } = window.FFmpegWASM; 
@@ -106,18 +97,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             });
 
-            DOM.ffmpegStatus.textContent = 'Mendownload Core & Worker...';
+            DOM.ffmpegStatus.textContent = 'Memuat Core Lokal...';
             DOM.ffmpegStatus.className = 'status-badge loading';
-
-            // Kita gunakan UNPKG untuk konsistensi seluruh modul
-            const coreBaseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
-            const ffmpegBaseURL = 'https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd';
             
-            // Menggunakan custom loadBlobURL buatan kita sendiri
+            // 🔥 LOAD LANGSUNG DARI FOLDER LOKAL (Anti-Error & Cepat)
             await State.ffmpeg.load({
-                coreURL: await loadBlobURL(`${coreBaseURL}/ffmpeg-core.js`, 'text/javascript'),
-                wasmURL: await loadBlobURL(`${coreBaseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-                classWorkerURL: await loadBlobURL(`${ffmpegBaseURL}/814.ffmpeg.js`, 'text/javascript')
+                coreURL: 'ffmpeg/ffmpeg-core.js',
+                wasmURL: 'ffmpeg/ffmpeg-core.wasm',
+                classWorkerURL: 'ffmpeg/814.ffmpeg.js'
             });
 
             State.isFFmpegLoaded = true;
@@ -129,7 +116,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.error("FFmpeg Load Error Detail:", error);
             DOM.ffmpegStatus.textContent = 'Gagal Memuat FFmpeg';
             DOM.ffmpegStatus.className = 'status-badge error';
-            Utils.showToast('Gagal memuat engine FFmpeg. Cek koneksi atau Console (F12).', 'error');
+            Utils.showToast('Gagal memuat engine FFmpeg. Cek Console.', 'error');
         }
     }
 
@@ -287,13 +274,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             DOM.resultList.appendChild(el);
         });
 
-        const { fetchFile } = window.FFmpegUtil;
         const inputFileName = `input${State.currentFile.name.substring(State.currentFile.name.lastIndexOf('.'))}`;
 
         try {
-            // Write source file to Virtual FS Memory
+            // Write source file to Virtual FS Memory via Native JS
             DOM.progressDetail.textContent = "Menulis file video ke memori sistem...";
-            await State.ffmpeg.writeFile(inputFileName, await fetchFile(State.currentFile));
+            
+            // 🔥 MENGGUNAKAN NATIVE ARRAY BUFFER (Tanpa library tambahan)
+            const fileData = await State.currentFile.arrayBuffer();
+            await State.ffmpeg.writeFile(inputFileName, new Uint8Array(fileData));
 
             // Iterate through queue
             for (let i = 0; i < State.cutQueue.length; i++) {
