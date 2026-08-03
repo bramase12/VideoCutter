@@ -100,11 +100,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             DOM.ffmpegStatus.textContent = 'Memuat Core Lokal...';
             DOM.ffmpegStatus.className = 'status-badge loading';
             
-            // 🔥 LOAD LANGSUNG DARI FOLDER LOKAL (Anti-Error & Cepat)
+            // 🔥 SOLUSI PATH ABSOLUT: Memaksa Worker membaca dari domain Vercel Anda
+            // Mencegah library mencari file di komputer lokal pembuatnya (Jerome Wu)
+            const baseURL = window.location.origin;
+
             await State.ffmpeg.load({
-                coreURL: 'ffmpeg/ffmpeg-core.js',
-                wasmURL: 'ffmpeg/ffmpeg-core.wasm',
-                classWorkerURL: 'ffmpeg/814.ffmpeg.js'
+                coreURL: `${baseURL}/ffmpeg/ffmpeg-core.js`,
+                wasmURL: `${baseURL}/ffmpeg/ffmpeg-core.wasm`,
+                classWorkerURL: `${baseURL}/ffmpeg/814.ffmpeg.js`
             });
 
             State.isFFmpegLoaded = true;
