@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             DOM.ffmpegStatus.textContent = 'Memuat Core Lokal...';
             DOM.ffmpegStatus.className = 'status-badge loading';
             
-            // 🔥 Cukup panggil file lokal. Worker (814.ffmpeg.js) akan otomatis terpanggil!
+            // Call load with local paths to avoid CORS issues
             await State.ffmpeg.load({
                 coreURL: 'ffmpeg/ffmpeg-core.js',
                 wasmURL: 'ffmpeg/ffmpeg-core.wasm'
@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             Utils.showToast('Gagal memuat engine FFmpeg. Cek Console.', 'error');
         }
     }
-    
+
     // --- 5. EVENT LISTENERS (UI INTERACTIONS) ---
     const setupEventListeners = () => {
         // Drag & Drop
