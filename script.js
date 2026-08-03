@@ -81,18 +81,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     // --- 4. FFMPEG INITIALIZATION ---
     async function initFFmpeg() {
       try {
-            // Cek apakah bypass header berhasil
+            // Cek apakah bypass header berhasil di Vercel
             if (!window.crossOriginIsolated) {
-                console.warn("Peringatan: Browser tidak crossOriginIsolated. FFmpeg mungkin gagal dimuat jika SharedArrayBuffer tidak tersedia.");
+                console.warn("Peringatan: Browser tidak crossOriginIsolated. Pastikan file vercel.json sudah benar.");
             }
 
-            // PERBAIKAN DI SINI: Objek global untuk v0.12.x adalah FFmpegWASM
             const { FFmpeg } = window.FFmpegWASM; 
             const { toBlobURL } = window.FFmpegUtil; 
             
             State.ffmpeg = new FFmpeg();
             
-            // Listener untuk progress
+            // Listener untuk progress bar
             State.ffmpeg.on('progress', ({ progress }) => {
                 if (State.isProcessing && progress >= 0 && progress <= 1) {
                     const percent = Math.round(progress * 100);
@@ -101,15 +100,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             });
 
-            DOM.ffmpegStatus.textContent = 'Mendownload Core...';
+            DOM.ffmpegStatus.textContent = 'Mendownload Core & Worker...';
             DOM.ffmpegStatus.className = 'status-badge loading';
 
-            // Gunakan versi unpkg yang lebih stabil untuk WASM dan konversi ke Blob
-            const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
+            // URL dari CDN
+            const coreBaseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
+            const ffmpegBaseURL = 'https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.7/dist/umd';
             
+            // Bypass CORS Web Worker dengan toBlobURL
             await State.ffmpeg.load({
-                coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-                wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm')
+                coreURL: await toBlobURL(`${coreBaseURL}/ffmpeg-core.js`, 'text/javascript'),
+                wasmURL: await toBlobURL(`${coreBaseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+                classWorkerURL: await toBlobURL(`${ffmpegBaseURL}/814.ffmpeg.js`, 'text/javascript')
             });
 
             State.isFFmpegLoaded = true;
@@ -121,12 +123,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.error("FFmpeg Load Error Detail:", error);
             DOM.ffmpegStatus.textContent = 'Gagal Memuat FFmpeg';
             DOM.ffmpegStatus.className = 'status-badge error';
-            
-            if (!window.crossOriginIsolated) {
-                Utils.showToast('Gagal memuat: Server tidak mendukung SharedArrayBuffer (Cek Header/Service Worker).', 'error');
-            } else {
-                Utils.showToast('Gagal memuat engine FFmpeg. Cek koneksi atau Console (F12).', 'error');
-            }
+            Utils.showToast('Gagal memuat engine FFmpeg. Cek koneksi atau Console (F12).', 'error');
         }
     }
 
