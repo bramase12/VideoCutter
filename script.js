@@ -79,15 +79,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     // --- 4. FFMPEG INITIALIZATION ---
+    // --- 4. FFMPEG INITIALIZATION ---
+
+    // 🚀 CUSTOM FETCHER: Pengganti FFmpegUtil yang 100% Native & Anti-Error
+    async function loadBlobURL(url, mimeType) {
+        const response = await fetch(url);
+        const buffer = await response.arrayBuffer();
+        const blob = new Blob([buffer], { type: mimeType });
+        return URL.createObjectURL(blob);
+    }
+
     async function initFFmpeg() {
-     try {
+        try {
             if (!window.crossOriginIsolated) {
-                console.warn("Peringatan: Browser tidak crossOriginIsolated. Pastikan vercel.json sudah benar.");
+                console.warn("Peringatan: Browser tidak crossOriginIsolated. Pastikan konfigurasi Vercel sudah benar.");
             }
 
             const { FFmpeg } = window.FFmpegWASM; 
-            const { toBlobURL } = window.FFmpegUtil; 
-            
             State.ffmpeg = new FFmpeg();
             
             State.ffmpeg.on('progress', ({ progress }) => {
@@ -101,15 +109,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             DOM.ffmpegStatus.textContent = 'Mendownload Core & Worker...';
             DOM.ffmpegStatus.className = 'status-badge loading';
 
-            // Base URL diperbarui ke 0.12.10
+            // Kita gunakan UNPKG untuk konsistensi seluruh modul
             const coreBaseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
-            const ffmpegBaseURL = 'https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd';
+            const ffmpegBaseURL = 'https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd';
             
-            // Sekarang classWorkerURL pasti akan dieksekusi dengan benar
+            // Menggunakan custom loadBlobURL buatan kita sendiri
             await State.ffmpeg.load({
-                coreURL: await toBlobURL(`${coreBaseURL}/ffmpeg-core.js`, 'text/javascript'),
-                wasmURL: await toBlobURL(`${coreBaseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-                classWorkerURL: await toBlobURL(`${ffmpegBaseURL}/814.ffmpeg.js`, 'text/javascript')
+                coreURL: await loadBlobURL(`${coreBaseURL}/ffmpeg-core.js`, 'text/javascript'),
+                wasmURL: await loadBlobURL(`${coreBaseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+                classWorkerURL: await loadBlobURL(`${ffmpegBaseURL}/814.ffmpeg.js`, 'text/javascript')
             });
 
             State.isFFmpegLoaded = true;
