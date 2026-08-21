@@ -1,139 +1,207 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auto Video Cutter Pro | FFmpeg WASM</title>
+    <title>Professional Video Automation Studio</title>
     <link rel="stylesheet" href="style.css">
 
-    <!-- js -->
+    <!-- COI Service Worker for FFmpeg WASM SharedArrayBuffer support -->
     <script src="coi-serviceworker.min.js"></script>
     
-    <!-- Library Eksternal via CDN -->
-    <!-- Menggunakan FFmpeg WASM v0.12 -->
-    <!-- Library Eksternal via LOKAL (Anti CORS/Security Error) -->
+    <!-- FFmpeg WASM Core -->
     <script src="ffmpeg/ffmpeg.js"></script>
+    
+    <!-- JSZip for Batch Downloads -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
-<body class="dark-theme">
-    <div class="app-container">
-        
-        <!-- Sidebar & Settings -->
-        <aside class="sidebar glass-panel">
-            <h2>⚙️ Pengaturan</h2>
-            
-            <div class="form-group">
-                <label for="outputPrefix">Prefix Nama Output</label>
-                <input type="text" id="outputPrefix" value="Video_" placeholder="Contoh: Tutorial_">
+<body>
+    <div class="app-wrapper">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="5 3 19 12 5 21 5 3"/><rect x="4" y="2" width="16" height="20" rx="2"/>
+                </svg>
+                <span>Video Studio</span>
             </div>
+            <nav class="sidebar-nav">
+                <a href="#dashboard" class="nav-link active">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                    Dashboard
+                </a>
+                
+                <div class="nav-section">Input</div>
+                <a href="#import" class="nav-link">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    Local Upload
+                </a>
+                <a href="#youtube" class="nav-link">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19.13C5.12 19.56 12 19.56 12 19.56s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg>
+                    YouTube Import
+                </a>
 
-            <div class="form-group">
-                <label for="videoCodec">Mode Proses</label>
-                <select id="videoCodec">
-                    <option value="copy">Fast Mode (Lossless, -c copy)</option>
-                    <option value="libx264">Quality Mode (Re-encode, libx264)</option>
-                </select>
-            </div>
+                <div class="nav-section">Process</div>
+                <a href="#editor" class="nav-link">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>
+                    Cut Editor
+                </a>
+                <a href="#queue" class="nav-link">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                    Batch Queue
+                </a>
 
-            <div class="form-group">
-                <label for="outputFormat">Format Output</label>
-                <select id="outputFormat">
-                    <option value="mp4">MP4</option>
-                    <option value="mkv">MKV</option>
-                    <option value="webm">WEBM</option>
-                </select>
-            </div>
+                <div class="nav-section">Output</div>
+                <a href="#results" class="nav-link">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    Results Manager
+                </a>
+                <a href="#snackvideo" class="nav-link">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+                    SnackVideo Export
+                </a>
 
-            <hr>
-            
-            <div class="system-status">
-                <h3>Status FFmpeg</h3>
-                <div id="ffmpegStatus" class="status-badge loading">Memuat Core...</div>
-            </div>
-            
-            <div class="memory-stats">
-                <small>Penggunaan Memori dikelola otomatis oleh Garbage Collector (URL.revokeObjectURL & FS.unlink).</small>
-            </div>
+                <div class="nav-section">System</div>
+                <a href="#projects" class="nav-link">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                    Projects
+                </a>
+                <a href="#settings" class="nav-link">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    Settings
+                </a>
+            </nav>
         </aside>
 
-        <!-- Main Content -->
+        <!-- Main Workspace -->
         <main class="main-content">
-            <header>
-                <h1>Auto Video Cutter <span>Pro</span></h1>
-                <p>Potong video secara lokal di browser tanpa server menggunakan FFmpeg WASM.</p>
+            <header class="topbar">
+                <button class="menu-toggle" id="menuToggle">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </button>
+                <div class="topbar-title">Video Automation Studio <span class="text-muted" id="appNameSuffix"></span></div>
             </header>
 
-            <div class="grid-layout">
-                <!-- Kolom Kiri: Upload & Preview -->
-                <section class="left-panel">
-                    <div id="dropZone" class="drop-zone glass-panel" aria-label="Area Upload Video" role="button" tabindex="0">
-                        <div class="drop-content">
-                            <span class="icon">📁</span>
-                            <p>Drag & Drop video di sini atau <strong>Klik untuk Upload</strong></p>
-                            <small>Support: MP4, MOV, AVI, MKV, WEBM</small>
+            <div class="pages-container">
+                
+                <!-- Page: Dashboard -->
+                <section id="page-dashboard" class="page-section active">
+                    <h2>Dashboard</h2>
+                    <div class="dash-grid">
+                        <div class="dash-card glass-panel">
+                            <span class="dash-card-title">Total Videos</span>
+                            <span class="dash-card-value" id="dashTotalVideos">0</span>
                         </div>
-                        <input type="file" id="videoInput" accept="video/mp4,video/x-m4v,video/*" hidden>
+                        <div class="dash-card glass-panel">
+                            <span class="dash-card-title">Total Clips</span>
+                            <span class="dash-card-value" id="dashTotalClips">0</span>
+                        </div>
+                        <div class="dash-card glass-panel">
+                            <span class="dash-card-title">Completed</span>
+                            <span class="dash-card-value text-success" id="dashCompleted">0</span>
+                        </div>
+                        <div class="dash-card glass-panel">
+                            <span class="dash-card-title">Processing</span>
+                            <span class="dash-card-value text-primary" id="dashProcessing">0</span>
+                        </div>
+                        <div class="dash-card glass-panel">
+                            <span class="dash-card-title">Failed</span>
+                            <span class="dash-card-value text-danger" id="dashFailed">0</span>
+                        </div>
+                        <div class="dash-card glass-panel">
+                            <span class="dash-card-title">Storage Used</span>
+                            <span class="dash-card-value" id="dashStorage">0 B</span>
+                        </div>
                     </div>
-
-                    <div class="video-preview glass-panel hidden" id="videoPreviewContainer">
-                        <video id="videoPlayer" controls></video>
-                        <div class="video-info">
-                            <span id="videoName">Nama_File.mp4</span>
-                            <span id="videoDuration">00:00:00</span>
+                    
+                    <div class="grid-layout" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                        <div class="glass-panel">
+                            <h3>Quick Actions</h3>
+                            <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 16px;">
+                                <button class="btn btn-primary" onclick="window.app.navigate('import')">Upload Local Video</button>
+                                <button class="btn btn-secondary" onclick="window.app.navigate('youtube')">Import from YouTube</button>
+                                <button class="btn btn-secondary" onclick="window.app.modules.project.createNew()">Create New Project</button>
+                            </div>
+                        </div>
+                        <div class="glass-panel">
+                            <h3>Recent Projects</h3>
+                            <div id="dashRecentProjects" style="display: flex; flex-direction: column; gap: 12px; margin-top: 16px;">
+                                <!-- Populated by JS -->
+                            </div>
                         </div>
                     </div>
                 </section>
 
-                <!-- Kolom Kanan: Cut List & Processing -->
-                <section class="right-panel glass-panel">
-                    <div class="panel-header">
-                        <h3>Daftar Potongan (Cut List)</h3>
-                        <div class="actions">
-                            <button id="btnImportText" class="btn btn-secondary btn-sm">Import TXT</button>
-                            <input type="file" id="importInput" accept=".txt,.csv,.json" hidden>
-                            <button id="btnExportText" class="btn btn-secondary btn-sm">Export TXT</button>
-                        </div>
-                    </div>
+                <!-- Page: Import -->
+                <section id="page-import" class="page-section">
+                    <h2>Local Upload</h2>
+                    <p class="mb-4 text-muted">Upload a video from your local device to start editing. Processing runs locally in your browser.</p>
                     
-                    <div class="input-area">
-                        <textarea id="cutListInput" placeholder="Format: HH:MM:SS - HH:MM:SS&#10;Contoh:&#10;00:00:00 - 00:00:15&#10;00:20 - 00:45" rows="6"></textarea>
-                    </div>
-                    
-                    <button id="btnStartProcess" class="btn btn-primary btn-large" disabled>
-                        <span class="btn-text">MULAI PROSES</span>
-                        <div class="spinner hidden"></div>
-                    </button>
-
-                    <div id="progressContainer" class="progress-container hidden">
-                        <div class="progress-header">
-                            <span id="progressText">Memproses: 0 / 0</span>
-                            <span id="progressPercent">0%</span>
-                        </div>
-                        <div class="progress-bar-bg">
-                            <div id="progressBar" class="progress-bar-fill"></div>
-                        </div>
-                        <small id="progressDetail" class="progress-detail">Menyiapkan...</small>
+                    <div class="import-zone" id="importDropZone">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        <h3>Drag & Drop video here</h3>
+                        <p class="text-muted mt-2">or click to browse files</p>
+                        <small class="text-muted mt-2">Supports: MP4, MOV, WEBM, AVI, MKV</small>
+                        <input type="file" id="importFileInput" accept="video/mp4,video/webm,video/quicktime,video/x-matroska,video/x-msvideo" hidden>
                     </div>
                 </section>
+
+                <!-- Page: YouTube Import -->
+                <section id="page-youtube" class="page-section">
+                    <div id="youtubeContainer"></div>
+                </section>
+
+                <!-- Page: Editor -->
+                <section id="page-editor" class="page-section">
+                    <div class="editor-grid">
+                        <div class="editor-panel glass-panel" id="editorPlayerContainer">
+                            <div id="editorPlayer" style="height: 100%;"></div>
+                        </div>
+                        <div class="editor-panel glass-panel" style="display: flex; flex-direction: column;">
+                            <div id="editorCutter" style="flex: 1; display: flex; flex-direction: column;"></div>
+                            <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end;">
+                                <button class="btn btn-primary" id="editorAddToQueue">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                    Add Segments to Queue
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Page: Queue -->
+                <section id="page-queue" class="page-section">
+                    <div id="queueContainer" class="glass-panel" style="min-height: 400px;"></div>
+                </section>
+
+                <!-- Page: Results -->
+                <section id="page-results" class="page-section">
+                    <div id="resultsContainer"></div>
+                </section>
+
+                <!-- Page: SnackVideo -->
+                <section id="page-snackvideo" class="page-section">
+                    <div id="snackvideoContainer"></div>
+                </section>
+
+                <!-- Page: Projects -->
+                <section id="page-projects" class="page-section">
+                    <div id="projectContainer"></div>
+                </section>
+
+                <!-- Page: Settings -->
+                <section id="page-settings" class="page-section">
+                    <div id="settingsContainer"></div>
+                </section>
+
             </div>
-
-            <!-- Queue & Results -->
-            <section class="results-section glass-panel">
-                <div class="panel-header">
-                    <h3>Hasil Potongan (Queue & Completed)</h3>
-                    <button id="btnDownloadZip" class="btn btn-success hidden">Download Semua (ZIP)</button>
-                </div>
-                <div id="resultList" class="result-list">
-                    <!-- Item hasil akan di-generate di sini -->
-                    <div class="empty-state">Belum ada video yang diproses.</div>
-                </div>
-            </section>
         </main>
     </div>
 
-    <!-- Toast Notification System -->
+    <!-- Toast Notification Container -->
     <div id="toastContainer" class="toast-container"></div>
 
-    <script src="script.js"></script>
+    <!-- Application Script (ES Modules) -->
+    <script type="module" src="js/app.js"></script>
 </body>
 </html>
